@@ -3,149 +3,141 @@ import { saveAs } from 'file-saver'
 import { PDFDocument } from 'pdf-lib'
 import * as pdfjsLib from 'pdfjs-dist'
 import 'pdfjs-dist/web/pdf_viewer.css'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Upload, File, X } from 'lucide-react'
+import { UploadCloud, File as FileIcon, X, ChevronDown } from 'lucide-react'
+import { cn } from "@/lib/utils"
+import { Input } from "@/components/ui/input" // <-- ADD THIS LINE
 
+// PDF.js worker setup
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString()
 
-// ... (Conversion functions remain the same)
+// --- Conversion Functions (Unchanged) ---
+async function dataURLFromImage(file, targetType) { /* ... */ }
+async function imagesToPdf(imageFiles) { /* ... */ }
+async function pdfToImages(pdfFile) { /* ... */ }
+async function mergePdfs(files) { /* ... */ }
+async function excludePdfPages(file, excludeSpec) { /* ... */ }
 
-function App() {
+export default function App() {
   const [files, setFiles] = useState([])
   const [selected, setSelected] = useState([])
   const [isDragging, setIsDragging] = useState(false)
+  const [isDropdownOpen, setDropdownOpen] = useState(false)
+  const inputRef = useRef(null)
 
   const onFiles = useCallback((newFiles) => {
     setFiles((prev) => [...prev, ...newFiles])
   }, [])
 
-  const handleDragEnter = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(true)
-  }
-
-  const handleDragLeave = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-  }
-
-  const handleDragOver = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
-
+  const handleDragEnter = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); }
+  const handleDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); }
+  const handleDragOver = (e) => { e.preventDefault(); e.stopPropagation(); }
   const handleDrop = (e) => {
     e.preventDefault()
     e.stopPropagation()
     setIsDragging(false)
-    const droppedFiles = Array.from(e.dataTransfer.files)
-    onFiles(droppedFiles)
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      onFiles(Array.from(e.dataTransfer.files))
+      e.dataTransfer.clearData()
+    }
+  }
+
+  const selFiles = useMemo(() => selected.map(i => files[i]).filter(Boolean), [files, selected])
+
+  const handleAction = async (action) => {
+    setDropdownOpen(false)
+    // ... (logic for each action like convertTo, makePdf, etc.)
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center p-4 sm:p-6 lg:p-8">
-      <div className="w-full max-w-4xl">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-center text-gray-800">File Converter</h1>
-          <p className="text-center text-gray-500 mt-2">A versatile tool to handle all your file conversion needs.</p>
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 flex flex-col items-center text-lg">
+      <div className="w-full max-w-3xl space-y-8">
+        <header className="text-center py-8">
+          <h1 className="text-7xl font-bold text-orange-300 tracking-widest">File Convertzz</h1>
         </header>
 
-        <main>
-          <Card
+        <main className="space-y-12">
+          <div
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            className={`transition-all duration-300 ${isDragging ? 'border-primary ring-2 ring-primary' : ''}`}
+            onClick={() => inputRef.current?.click()}
+            className={cn(
+              "relative block w-full rounded-lg p-12 text-center transition-all duration-300 cursor-pointer",
+              "border-[3px] border-dashed",
+              isDragging ? 'border-orange-400 bg-orange-400/10 scale-105' : 'border-orange-400/50'
+            )}
           >
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="w-6 h-6" />
-                <span>Upload Files</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-lg">
-                <p className="text-lg font-semibold text-gray-700">Drag & drop files here</p>
-                <p className="text-sm text-gray-500 mt-1">or</p>
-                <Button asChild className="mt-4">
-                  <Label htmlFor="file-upload">
-                    Browse files
-                    <Input id="file-upload" type="file" multiple className="hidden" onChange={(e) => onFiles(Array.from(e.target.files))} />
-                  </Label>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            <UploadCloud className="mx-auto h-16 w-16 text-orange-300" />
+            <span className="mt-4 block font-semibold text-orange-200">
+              {isDragging ? "Release to Drop" : "Drop files or Click to Upload"}
+            </span>
+            <Input
+              ref={inputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={(e) => onFiles(Array.from(e.target.files))}
+            />
+          </div>
 
           {files.length > 0 && (
-            <div className="mt-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>File Queue</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {files.map((file, idx) => (
-                      <div key={idx} className="flex items-center gap-4 p-3 border rounded-lg bg-white shadow-sm">
-                        <Checkbox
-                          id={`file-${idx}`}
-                          checked={selected.includes(idx)}
-                          onCheckedChange={(checked) => {
-                            setSelected((prev) => checked ? [...prev, idx] : prev.filter((i) => i !== idx))
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <h2 className="text-3xl text-orange-300">File Queue</h2>
+                {files.map((file, idx) => (
+                  <div key={idx} className="radio-input">
+                    <label>
+                      <input
+                        type="radio"
+                        name="file-selection"
+                        checked={selected.includes(idx)}
+                        onChange={() => setSelected([idx])}
+                      />
+                      <div className="flex items-center gap-4 w-full px-4">
+                        <FileIcon className="w-6 h-6 text-gray-400 flex-shrink-0" />
+                        <div className="flex-1 min-w-0 text-left">
+                          <p className="font-medium truncate" title={file.name}>{file.name}</p>
+                          <p className="text-xs text-gray-500">{file.type || 'unknown'} • {(file.size / 1024).toFixed(1)} KB</p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFiles(files.filter((_, i) => i !== idx));
+                            setSelected(selected.filter(i => i !== idx).map(i => i > idx ? i - 1 : i));
                           }}
-                        />
-                        <Label htmlFor={`file-${idx}`} className="flex-1 flex items-center gap-3 cursor-pointer">
-                          <File className="w-6 h-6 text-gray-500" />
-                          <div>
-                            <div className="font-medium text-gray-800 truncate">{file.name}</div>
-                            <div className="text-xs text-gray-500">{file.type || 'unknown'} • {(file.size / 1024).toFixed(1)} KB</div>
-                          </div>
-                        </Label>
-                        <Button variant="ghost" size="icon" onClick={() => {
-                          setFiles(files.filter((_, i) => i !== idx))
-                          setSelected(selected.filter(i => i !== idx))
-                        }}>
-                          <X className="w-4 h-4" />
-                        </Button>
+                          className="p-2 rounded-full hover:bg-white/10"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
                       </div>
-                    ))}
+                    </label>
+                     <div className="selection"></div>
                   </div>
-                </CardContent>
-              </Card>
+                ))}
+              </div>
 
-              <Tabs defaultValue="image" className="mt-8">
-                <TabsList>
-                  <TabsTrigger value="image">Image Tools</TabsTrigger>
-                  <TabsTrigger value="pdf">PDF Tools</TabsTrigger>
-                </TabsList>
-                <TabsContent value="image">
-                  <Card>
-                    <CardHeader><CardTitle>Image Conversion</CardTitle></CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {/* ... Image conversion buttons ... */}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-                <TabsContent value="pdf">
-                  <Card>
-                    <CardHeader><CardTitle>PDF Tools</CardTitle></CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {/* ... PDF conversion buttons ... */}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
-
-              <div className="mt-8 flex justify-end">
-                <Button variant="destructive" onClick={() => { setFiles([]); setSelected([]) }}>Clear All</Button>
+              <div className="relative">
+                <button
+                  onClick={() => setDropdownOpen(!isDropdownOpen)}
+                  className="w-full flex items-center justify-between p-4 bg-[#222] border border-[#333] rounded-lg text-lg"
+                >
+                  Select an Action...
+                  <ChevronDown className={cn("w-6 h-6 transition-transform", isDropdownOpen && "rotate-180")} />
+                </button>
+                {isDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-[#222] border border-[#333] rounded-lg z-10">
+                    <h3 className="p-3 text-sm text-gray-400">Image Tools</h3>
+                    <button onClick={() => handleAction('to_png')} className="block w-full text-left p-3 hover:bg-orange-400/20">Convert to PNG</button>
+                    <button onClick={() => handleAction('to_jpeg')} className="block w-full text-left p-3 hover:bg-orange-400/20">Convert to JPEG</button>
+                    <button onClick={() => handleAction('images_to_pdf')} className="block w-full text-left p-3 hover:bg-orange-400/20">Images to PDF</button>
+                    <div className="border-t border-[#333] my-1"></div>
+                    <h3 className="p-3 text-sm text-gray-400">PDF Tools</h3>
+                    <button onClick={() => handleAction('pdf_to_jpeg')} className="block w-full text-left p-3 hover:bg-orange-400/20">PDF to JPEGs</button>
+                    <button onClick={() => handleAction('merge_pdfs')} className="block w-full text-left p-3 hover:bg-orange-400/20">Merge PDFs</button>
+                    <button onClick={() => handleAction('exclude_pages')} className="block w-full text-left p-3 hover:bg-orange-400/20">Exclude Pages</button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -154,5 +146,3 @@ function App() {
     </div>
   )
 }
-
-export default App
