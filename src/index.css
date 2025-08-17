@@ -22,8 +22,8 @@ background-image: radial-gradient(rgba(255, 255, 255, 0.2) 2px, transparent 0);
 }
 
 /* Custom Scrollbar */
-/* ::-webkit-scrollbar {
-  width: 8px;
+::-webkit-scrollbar {
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
   background: #222;
@@ -31,4 +31,4 @@ background-image: radial-gradient(rgba(255, 255, 255, 0.2) 2px, transparent 0);
 ::-webkit-scrollbar-thumb {
   background: #fb923c;
   border-radius: 4px;
-} */
+}

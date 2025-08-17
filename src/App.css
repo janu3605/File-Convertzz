@@ -4,31 +4,32 @@
 .app-container {
   height: 100vh;
   max-height: 100vh;
+  padding: 1rem 2rem; /* Reduced vertical padding */
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 1.25rem; /* 20px */
-  overflow: hidden; /* Prevents the whole page from scrolling */
+  font-size: 1.25rem;
+  overflow: hidden;
 }
 
 .content-wrapper {
   width: 100%;
-  max-width: 56rem; /* 896px */
+  max-width: 56rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* 24px */
+  gap: 1.5rem;
   height: 100%;
 }
 
 .header {
   text-align: center;
-  flex-shrink: 0; /* Prevents header from shrinking */
+  flex-shrink: 0;
 }
 
 .header-title {
-  font-size: 4.5rem; /* 72px */
+  font-size: 4rem; /* Slightly smaller title */
   font-weight: 700;
-  color: #fb923c; /* orange-400 */
+  color: #fb923c;
   letter-spacing: 0.1em;
   animation: pulse 3s ease-in-out infinite;
 }
@@ -41,14 +42,14 @@
 .main-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* 24px */
+  gap: 1.5rem;
   flex-grow: 1;
-  min-height: 0; /* Allows flex children to shrink properly */
+  min-height: 0;
 }
 
 /* --- Drop Zone --- */
 .drop-zone {
-  position: relative;
+  position: relative; /* Changed for internal positioning */
   padding: 2rem;
   text-align: center;
   transition: all 0.3s ease;
@@ -73,13 +74,31 @@
   color: #fb923c;
 }
 
+.widget-toggle-btn {
+    position: absolute; /* Positioned inside the drop zone */
+    bottom: 0.5rem;
+    left: 0.5rem;
+    background: transparent;
+    border: 2px solid #333;
+    color: #f5f5f5;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+}
+.widget-toggle-btn:hover {
+    border-color: #fb923c;
+    color: #fb923c;
+}
+
+
 /* --- File Queue & Actions --- */
 .queue-and-actions {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     flex-grow: 1;
-    min-height: 0; /* Important for scrollable child */
+    min-height: 0;
 }
 
 .file-queue-header {
@@ -90,7 +109,7 @@
 }
 
 .file-queue-title {
-  font-size: 2.25rem; /* 36px */
+  font-size: 2.25rem;
   color: #fb923c;
 }
 
@@ -108,18 +127,16 @@
   color: black;
 }
 
-/* This makes the file list scrollable within its container */
 .file-list-container {
-  overflow-y: auto; /* The magic for a scrollable queue */
-  padding-right: 0.5rem; /* Space for the scrollbar */
+  overflow-y: auto;
+  padding-right: 0.5rem;
   border: 2px solid #333;
   padding: 1rem;
   background: rgba(0,0,0,0.4);
-  /* Sets a max-height based on approx 3 items */
-  max-height: 200px; 
+  max-height: 240px; 
 }
 
-/* --- Pixel Checkbox (Adapted from your Radio Button CSS) --- */
+/* --- Pixel Checkbox --- */
 .uiverse-pixel-checkbox-group {
   display: flex;
   flex-direction: column;
@@ -184,11 +201,6 @@
   transform: translateY(0.125em);
 }
 
-.uiverse-pixel-checkbox input[type="checkbox"]:focus-visible {
-  outline: 2px dashed #fff;
-  outline-offset: 0.2em;
-}
-
 .file-details {
   display: flex;
   align-items: center;
@@ -232,7 +244,7 @@
 }
 
 
-/* --- Improved Dropdown Component --- */
+/* --- Dropdown Component --- */
 .dropdown-wrapper {
   position: relative;
   flex-shrink: 0;
@@ -263,7 +275,7 @@
 
 .dropdown-menu {
   position: absolute;
-  bottom: 100%; /* Opens upwards */
+  bottom: 100%;
   left: 0;
   right: 0;
   margin-bottom: 0.25rem;
@@ -301,4 +313,110 @@
 .dropdown-divider {
     border-top: 2px solid #333;
     margin: 0.5rem 0;
+}
+
+/* --- Custom Modal Styles --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background-color: #1a1a1a;
+    border: 2px solid #333;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 0 0 4px #000;
+}
+
+.modal-header {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #333;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    color: #fb923c;
+}
+
+.modal-close-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+}
+.modal-close-btn:hover {
+    color: #fff;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modal-body p {
+    margin: 0;
+    color: #a3a3a3;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #000;
+    border: 2px solid #333;
+    color: #fff;
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+}
+.modal-input:focus {
+    outline: none;
+    border-color: #fb923c;
+}
+
+.modal-footer {
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    border-top: 2px solid #333;
+}
+
+.modal-btn {
+    padding: 0.5rem 1.5rem;
+    border: 2px solid #333;
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.modal-btn.primary {
+    background-color: #ff6b35;
+    color: #000;
+    box-shadow: 0 0 0 2px #000, 0 0 0 4px #fff;
+}
+.modal-btn.primary:hover {
+    background-color: #ff8c42;
+}
+
+.modal-btn.secondary {
+    background-color: #333;
+    color: #fff;
+}
+.modal-btn.secondary:hover {
+    background-color: #444;
 }

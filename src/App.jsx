@@ -2,14 +2,16 @@ import { useCallback, useRef, useState } from 'react';
 import { saveAs } from 'file-saver';
 import { PDFDocument } from 'pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
-import { UploadCloud, X, ChevronDown } from 'lucide-react';
+import { UploadCloud, X, ChevronDown, Move } from 'lucide-react';
 import './App.css';
+import { HoverDropWidget } from './components/HoverDropWidget';
+import { Modal } from './components/Modal';
 
 // Setup PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
 // --- FULLY FUNCTIONAL CONVERSION LOGIC ---
-// ... (All the conversion functions like imagesToPdf, pdfToImages, etc.)
+// ... (All conversion functions remain the same)
 async function dataURLFromImage(file, targetType) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -107,9 +109,8 @@ async function excludePdfPages(file, excludeSpec) {
     return await newPdfDoc.save();
 }
 
-
 // --- UI COMPONENTS ---
-
+// ... (FileQueue and ActionDropdown components remain the same)
 const FileQueue = ({ files, selected, setSelected, setFiles }) => {
   const handleSelection = (idx) => {
     setSelected(prevSelected => {
@@ -149,7 +150,6 @@ const FileQueue = ({ files, selected, setSelected, setFiles }) => {
                   onClick={(e) => {
                     e.preventDefault();
                     setFiles(files.filter((_, i) => i !== idx));
-                    // Adjust selected indices after removing a file
                     setSelected(prev => prev
                         .map(i => {
                             if (i === idx) return -1; // Mark for removal
@@ -204,10 +204,41 @@ const ActionDropdown = ({ onAction }) => {
 };
 
 
+const ExcludePagesModal = ({ onCancel, onSubmit }) => {
+    const [inputValue, setInputValue] = useState('');
+
+    const handleSubmit = () => {
+        if (inputValue.trim()) {
+            onSubmit(inputValue);
+        }
+    };
+
+    return (
+        <Modal title="Exclude Pages" onClose={onCancel}>
+            <p>Enter pages or ranges to exclude from the PDF.</p>
+            <input
+                type="text"
+                className="modal-input"
+                placeholder="e.g., 1, 4-6"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                autoFocus
+            />
+            <div className="modal-footer">
+                <button onClick={onCancel} className="modal-btn secondary">Cancel</button>
+                <button onClick={handleSubmit} className="modal-btn primary">OK</button>
+            </div>
+        </Modal>
+    );
+};
+
+
 export default function App() {
     const [files, setFiles] = useState([]);
     const [selected, setSelected] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
+    const [showWidget, setShowWidget] = useState(false);
+    const [modal, setModal] = useState(null); // New state for managing modals
     const inputRef = useRef(null);
 
     const onFiles = useCallback((newFiles) => {
@@ -224,6 +255,7 @@ export default function App() {
         try {
             const file = selFiles[0]; // For single-file actions
             switch (action) {
+                // ... other cases remain the same
                 case 'to_png':
                 case 'to_jpeg':
                     const targetType = action === 'to_png' ? 'image/png' : 'image/jpeg';
@@ -257,11 +289,16 @@ export default function App() {
                     break;
                 case 'exclude_pages':
                     if (file.type === 'application/pdf') {
-                        const spec = prompt('Enter pages or ranges to exclude (e.g., "1, 4-6")');
-                        if (spec) {
-                            const resultBytes = await excludePdfPages(file, spec);
-                            saveAs(new Blob([resultBytes], { type: 'application/pdf' }), `${file.name.replace('.pdf', '')}-split.pdf`);
-                        }
+                        setModal(
+                            <ExcludePagesModal
+                                onCancel={() => setModal(null)}
+                                onSubmit={async (spec) => {
+                                    const resultBytes = await excludePdfPages(file, spec);
+                                    saveAs(new Blob([resultBytes], { type: 'application/pdf' }), `${file.name.replace('.pdf', '')}-split.pdf`);
+                                    setModal(null);
+                                }}
+                            />
+                        );
                     } else { alert("Please select a PDF file for this action."); }
                     break;
                 default: break;
@@ -286,6 +323,8 @@ export default function App() {
 
     return (
         <div className="app-container">
+            {showWidget && <HoverDropWidget onFiles={onFiles} onClose={() => setShowWidget(false)} />}
+            {modal}
             <div className="content-wrapper">
                 <header className="header">
                     <h1 className="header-title">File Convertzz</h1>
@@ -303,6 +342,16 @@ export default function App() {
                             <span>{isDragging ? "Release to process..." : "Drop Files or Click to Browse"}</span>
                         </div>
                         <input ref={inputRef} type="file" multiple hidden onChange={(e) => onFiles(Array.from(e.target.files))} />
+                         <button 
+                            className="widget-toggle-btn" 
+                            title="Open floating drop widget"
+                            onClick={(e) => {
+                                e.stopPropagation(); // Prevent drop zone click
+                                setShowWidget(true);
+                            }}
+                        >
+                            <Move size={24} />
+                        </button>
                     </div>
 
                     {files.length > 0 && (
