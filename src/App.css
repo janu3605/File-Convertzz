@@ -1,12 +1,14 @@
 /* src/App.css */
 
+/* --- Layout & Global Styles --- */
 .app-container {
-  min-height: 100vh;
-  padding: 2rem;
+  height: 100vh;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: 1.25rem; /* 20px */
+  overflow: hidden; /* Prevents the whole page from scrolling */
 }
 
 .content-wrapper {
@@ -14,12 +16,13 @@
   max-width: 56rem; /* 896px */
   display: flex;
   flex-direction: column;
-  gap: 2.5rem; /* 40px */
+  gap: 1.5rem; /* 24px */
+  height: 100%;
 }
 
 .header {
   text-align: center;
-  padding: 1rem 0;
+  flex-shrink: 0; /* Prevents header from shrinking */
 }
 
 .header-title {
@@ -31,35 +34,32 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%, 100% { opacity: 1; text-shadow: 0 0 10px #fb923c; }
+  50% { opacity: 0.7; text-shadow: 0 0 20px #f97316; }
 }
 
 .main-content {
   display: flex;
   flex-direction: column;
-  gap: 3rem; /* 48px */
+  gap: 1.5rem; /* 24px */
+  flex-grow: 1;
+  min-height: 0; /* Allows flex children to shrink properly */
 }
 
 /* --- Drop Zone --- */
 .drop-zone {
   position: relative;
-  display: block;
-  width: 100%;
-  padding: 3rem;
+  padding: 2rem;
   text-align: center;
   transition: all 0.3s ease;
   cursor: pointer;
   border: 3px dashed rgba(251, 146, 60, 0.5);
   background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
 }
-
 .drop-zone.dragging {
   border-color: #fb923c;
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
-
 .drop-zone-content {
   display: flex;
   flex-direction: column;
@@ -67,18 +67,26 @@
   justify-content: center;
   gap: 1rem;
 }
-
 .drop-zone-content svg {
-  height: 4rem;
-  width: 4rem;
+  height: 3rem;
+  width: 3rem;
   color: #fb923c;
 }
 
 /* --- File Queue & Actions --- */
+.queue-and-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex-grow: 1;
+    min-height: 0; /* Important for scrollable child */
+}
+
 .file-queue-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .file-queue-title {
@@ -90,6 +98,9 @@
   padding: 0.25rem 1rem;
   font-size: 1rem;
   border: 1px solid #333;
+  background: transparent;
+  color: #f5f5f5;
+  cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
 }
 .clear-all-btn:hover {
@@ -97,80 +108,134 @@
   color: black;
 }
 
-.file-list {
-  max-height: 30vh;
-  overflow-y: auto;
-  padding-right: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+/* This makes the file list scrollable within its container */
+.file-list-container {
+  overflow-y: auto; /* The magic for a scrollable queue */
+  padding-right: 0.5rem; /* Space for the scrollbar */
+  border: 2px solid #333;
+  padding: 1rem;
+  background: rgba(0,0,0,0.4);
+  /* Sets a max-height based on approx 3 items */
+  max-height: 200px; 
 }
 
-/* --- Custom Radio Button --- */
-.radio-input-wrapper {
+/* --- Pixel Checkbox (Adapted from your Radio Button CSS) --- */
+.uiverse-pixel-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.uiverse-pixel-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px #000;
   position: relative;
 }
 
-.radio-input-wrapper input {
-  display: none;
-}
-
-.radio-input-label {
-  width: 100%;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  z-index: 10;
-  color: #f5f5f5;
-  border: 1px solid #333;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  transition: color 0.2s;
-}
-
-.radio-input-wrapper input:checked + .radio-input-label {
-  color: #fb923c;
-}
-
-.radio-file-icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: #fb923c;
+.uiverse-pixel-checkbox input[type="checkbox"] {
+  appearance: none;
+  width: 1.5em;
+  height: 1.5em;
+  background: #ff6b35;
+  border: none;
+  box-shadow:
+    0 0 0 0.15em #000,
+    0 0 0 0.3em #fff,
+    0 0 0 0.45em #000;
+  image-rendering: pixelated;
+  margin: 0;
+  transition: all 0.1s steps(1);
+  position: relative;
   flex-shrink: 0;
 }
 
-.radio-file-info {
+.uiverse-pixel-checkbox input[type="checkbox"]::before {
+  content: "";
+  display: block;
+  width: 0.75em;
+  height: 0.75em;
+  background: #fff;
+  margin: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.1s ease-out;
+  box-shadow: 0 0 0 1px #000;
+}
+
+.uiverse-pixel-checkbox input[type="checkbox"]:checked::before {
+  transform: translate(-50%, -50%) scale(1);
+  background: #000;
+}
+
+.uiverse-pixel-checkbox input[type="checkbox"]:hover {
+  background: #ff8c42;
+}
+
+.uiverse-pixel-checkbox input[type="checkbox"]:active {
+  background: #e55a2b;
+  transform: translateY(0.125em);
+}
+
+.uiverse-pixel-checkbox input[type="checkbox"]:focus-visible {
+  outline: 2px dashed #fff;
+  outline-offset: 0.2em;
+}
+
+.file-details {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  width: 100%;
+}
+
+.file-info {
   flex-grow: 1;
   min-width: 0;
   text-align: left;
 }
-
-.radio-file-info p {
+.file-info p {
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-.radio-file-info .file-size {
-  font-size: 0.875rem; /* 14px */
-  color: #a3a3a3; /* gray-400 */
+.file-info .file-size {
+  font-size: 0.875rem;
+  color: #a3a3a3;
 }
-
+.file-format {
+    font-size: 0.875rem;
+    color: #a3a3a3;
+    background-color: #333;
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    margin-left: auto;
+}
 .remove-file-btn {
-  padding: 0.25rem;
-  border-radius: 9999px;
-  transition: background-color 0.2s;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 0.25rem;
+    flex-shrink: 0;
 }
 .remove-file-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+    color: #ff6b35;
 }
 
-/* --- Dropdown --- */
+
+/* --- Improved Dropdown Component --- */
 .dropdown-wrapper {
   position: relative;
+  flex-shrink: 0;
 }
 
 .dropdown-button {
@@ -180,9 +245,14 @@
   justify-content: space-between;
   padding: 1rem;
   background-color: rgba(0, 0, 0, 0.5);
-  border: 1px solid #333;
+  border: 2px solid #333;
   font-size: 1.25rem;
   text-align: left;
+  color: #fff;
+  cursor: pointer;
+}
+.dropdown-button:hover {
+    border-color: #fb923c;
 }
 .dropdown-button svg {
     transition: transform 0.2s;
@@ -191,22 +261,24 @@
     transform: rotate(180deg);
 }
 
-
 .dropdown-menu {
   position: absolute;
-  top: 100%;
+  bottom: 100%; /* Opens upwards */
   left: 0;
   right: 0;
-  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
   background-color: #1a1a1a;
-  border: 1px solid #333;
+  border: 2px solid #333;
   z-index: 20;
+  padding: 0.5rem;
 }
 
 .dropdown-menu h3 {
   padding: 0.75rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: #a3a3a3;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .dropdown-item {
@@ -214,6 +286,12 @@
   width: 100%;
   text-align: left;
   padding: 0.75rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-family: 'VT323', monospace;
   transition: background-color 0.2s, color 0.2s;
 }
 .dropdown-item:hover {
@@ -221,6 +299,6 @@
   color: black;
 }
 .dropdown-divider {
-    border-top: 1px solid #333;
-    margin: 0.25rem 0;
+    border-top: 2px solid #333;
+    margin: 0.5rem 0;
 }
