@@ -1,28 +1,22 @@
 import { useState, useRef, useCallback } from 'react';
-import { UploadCloud, FileText, GripVertical } from 'lucide-react';
+import { UploadCloud, FileText, GripVertical, X } from 'lucide-react';
 
-// This is a custom hook to manage the dragging state of the widget itself
+// Custom hook to make the widget draggable
 const useDraggable = () => {
   const [position, setPosition] = useState({ x: 50, y: 50 });
   const elementRef = useRef(null);
-  const offsetRef = useRef({ x: 0, y: 0 });
 
-  const onMouseDown = (e) => {
-    const el = elementRef.current;
-    if (!el || !e.target.classList.contains('drag-handle')) return;
+  const onMouseDown = useCallback((e) => {
+    // Only allow dragging from the header
+    if (!e.target.closest('.widget-header')) return;
 
-    const initialX = e.clientX;
-    const initialY = e.clientY;
-    const rect = el.getBoundingClientRect();
-    offsetRef.current = {
-      x: initialX - rect.left,
-      y: initialY - rect.top,
-    };
+    const startX = e.pageX - position.x;
+    const startY = e.pageY - position.y;
 
     const onMouseMove = (moveEvent) => {
       setPosition({
-        x: moveEvent.clientX - offsetRef.current.x,
-        y: moveEvent.clientY - offsetRef.current.y,
+        x: moveEvent.pageX - startX,
+        y: moveEvent.pageY - startY,
       });
     };
 
@@ -33,7 +27,7 @@ const useDraggable = () => {
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-  };
+  }, [position]);
 
   return {
     ref: elementRef,
@@ -76,11 +70,14 @@ export const HoverDropWidget = ({ onFiles, onClose }) => {
       onDragOver={handleDragOver}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
+      onMouseDown={onMouseDown}
     >
-      <div className="widget-header drag-handle" onMouseDown={onMouseDown}>
+      <div className="widget-header">
         <GripVertical size={20} className="drag-handle-icon" />
         <span className="drag-handle">Drop Zone</span>
-        <button onClick={onClose} className="widget-close-btn">X</button>
+        <button onClick={onClose} className="widget-close-btn">
+          <X size={20} />
+        </button>
       </div>
       <div className="widget-content">
         {droppedFiles.length === 0 ? (

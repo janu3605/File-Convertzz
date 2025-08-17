@@ -11,7 +11,6 @@ import { Modal } from './components/Modal';
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
 // --- FULLY FUNCTIONAL CONVERSION LOGIC ---
-// ... (All conversion functions remain the same)
 async function dataURLFromImage(file, targetType) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -109,8 +108,9 @@ async function excludePdfPages(file, excludeSpec) {
     return await newPdfDoc.save();
 }
 
+
 // --- UI COMPONENTS ---
-// ... (FileQueue and ActionDropdown components remain the same)
+
 const FileQueue = ({ files, selected, setSelected, setFiles }) => {
   const handleSelection = (idx) => {
     setSelected(prevSelected => {
@@ -123,7 +123,7 @@ const FileQueue = ({ files, selected, setSelected, setFiles }) => {
   };
 
   return (
-    <div className="flex flex-col min-h-0">
+    <div className="queue-and-actions">
       <div className="file-queue-header">
         <h2 className="file-queue-title">File Queue</h2>
         <button onClick={() => { setFiles([]); setSelected([]); }} className="clear-all-btn">
@@ -238,7 +238,7 @@ export default function App() {
     const [selected, setSelected] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
     const [showWidget, setShowWidget] = useState(false);
-    const [modal, setModal] = useState(null); // New state for managing modals
+    const [modal, setModal] = useState(null);
     const inputRef = useRef(null);
 
     const onFiles = useCallback((newFiles) => {
@@ -255,7 +255,6 @@ export default function App() {
         try {
             const file = selFiles[0]; // For single-file actions
             switch (action) {
-                // ... other cases remain the same
                 case 'to_png':
                 case 'to_jpeg':
                     const targetType = action === 'to_png' ? 'image/png' : 'image/jpeg';
@@ -355,7 +354,7 @@ export default function App() {
                     </div>
 
                     {files.length > 0 && (
-                        <div className="queue-and-actions">
+                        <>
                             <FileQueue
                                 files={files}
                                 selected={selected}
@@ -363,7 +362,7 @@ export default function App() {
                                 setFiles={setFiles}
                             />
                             <ActionDropdown onAction={handleAction} />
-                        </div>
+                        </>
                     )}
                 </main>
             </div>
