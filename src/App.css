@@ -1,42 +1,226 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
+/* src/App.css */
+
+.app-container {
+  min-height: 100vh;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.25rem; /* 20px */
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 56rem; /* 896px */
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem; /* 40px */
+}
+
+.header {
   text-align: center;
+  padding: 1rem 0;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.header-title {
+  font-size: 4.5rem; /* 72px */
+  font-weight: 700;
+  color: #fb923c; /* orange-400 */
+  letter-spacing: 0.1em;
+  animation: pulse 3s ease-in-out infinite;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem; /* 48px */
 }
 
-.card {
-  padding: 2em;
+/* --- Drop Zone --- */
+.drop-zone {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 3rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 3px dashed rgba(251, 146, 60, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
 }
 
-.read-the-docs {
-  color: #888;
+.drop-zone.dragging {
+  border-color: #fb923c;
+  transform: scale(1.05);
+}
+
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.drop-zone-content svg {
+  height: 4rem;
+  width: 4rem;
+  color: #fb923c;
+}
+
+/* --- File Queue & Actions --- */
+.file-queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-queue-title {
+  font-size: 2.25rem; /* 36px */
+  color: #fb923c;
+}
+
+.clear-all-btn {
+  padding: 0.25rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #333;
+  transition: background-color 0.2s, color 0.2s;
+}
+.clear-all-btn:hover {
+  background-color: #fb923c;
+  color: black;
+}
+
+.file-list {
+  max-height: 30vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* --- Custom Radio Button --- */
+.radio-input-wrapper {
+  position: relative;
+}
+
+.radio-input-wrapper input {
+  display: none;
+}
+
+.radio-input-label {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 10;
+  color: #f5f5f5;
+  border: 1px solid #333;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  transition: color 0.2s;
+}
+
+.radio-input-wrapper input:checked + .radio-input-label {
+  color: #fb923c;
+}
+
+.radio-file-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #fb923c;
+  flex-shrink: 0;
+}
+
+.radio-file-info {
+  flex-grow: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.radio-file-info p {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.radio-file-info .file-size {
+  font-size: 0.875rem; /* 14px */
+  color: #a3a3a3; /* gray-400 */
+}
+
+.remove-file-btn {
+  padding: 0.25rem;
+  border-radius: 9999px;
+  transition: background-color 0.2s;
+}
+.remove-file-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Dropdown --- */
+.dropdown-wrapper {
+  position: relative;
+}
+
+.dropdown-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
+  font-size: 1.25rem;
+  text-align: left;
+}
+.dropdown-button svg {
+    transition: transform 0.2s;
+}
+.dropdown-button.open svg {
+    transform: rotate(180deg);
+}
+
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.25rem;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  z-index: 20;
+}
+
+.dropdown-menu h3 {
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: #a3a3a3;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+.dropdown-item:hover {
+  background-color: #fb923c;
+  color: black;
+}
+.dropdown-divider {
+    border-top: 1px solid #333;
+    margin: 0.25rem 0;
 }
