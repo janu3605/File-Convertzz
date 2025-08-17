@@ -122,11 +122,76 @@ export default function App() {
         });
     }, []);
 
-    const handleAction = async (action) => {
-        // ... (Your handleAction logic goes here, same as the previous response) ...
+const handleAction = async (action) => {
+        setDropdownOpen(false);
+        const selFiles = selected.map(i => files[i]).filter(Boolean);
+        if (selFiles.length === 0) {
+            alert("Please select a file first!");
+            return;
+        }
+
+        try {
+            const file = selFiles[0];
+            switch (action) {
+                case 'to_png':
+                case 'to_jpeg':
+                    const targetType = action === 'to_png' ? 'image/png' : 'image/jpeg';
+                    const newExtension = action === 'to_png' ? '.png' : '.jpg';
+                    for (const f of selFiles.filter(f => f.type.startsWith('image/'))) {
+                        const arrayBuffer = await dataURLFromImage(f, targetType);
+                        const blob = new Blob([arrayBuffer]);
+                        const newName = f.name.replace(/\.[^/.]+$/, "") + newExtension;
+                        saveAs(blob, newName);
+                    }
+                    break;
+                case 'images_to_pdf':
+                    const imageFiles = selFiles.filter(f => f.type.startsWith('image/'));
+                    if (imageFiles.length > 0) {
+                        const pdfBytes = await imagesToPdf(imageFiles);
+                        saveAs(new Blob([pdfBytes], { type: 'application/pdf' }), 'converted.pdf');
+                    } else { alert("Please select image files for this action."); }
+                    break;
+                case 'pdf_to_jpeg':
+                    if (file.type === 'application/pdf') {
+                        const images = await pdfToImages(file);
+                        images.forEach(({ page, blob }) => saveAs(blob, `${file.name.replace('.pdf', '')}-page-${page}.jpg`));
+                    } else { alert("Please select a PDF file for this action."); }
+                    break;
+                case 'merge_pdfs':
+                    const pdfFiles = files.filter(f => f.type === 'application/pdf');
+                     if (pdfFiles.length > 1) {
+                        const mergedBytes = await mergePdfs(pdfFiles);
+                        saveAs(new Blob([mergedBytes], { type: 'application/pdf' }), 'merged.pdf');
+                    } else { alert("Please add at least two PDF files to the queue for merging."); }
+                    break;
+                case 'exclude_pages':
+                    if (file.type === 'application/pdf') {
+                        const spec = prompt('Enter pages or ranges to exclude (e.g., "1, 4-6")');
+                        if (spec) {
+                            const resultBytes = await excludePdfPages(file, spec);
+                            saveAs(new Blob([resultBytes], { type: 'application/pdf' }), `${file.name.replace('.pdf', '')}-split.pdf`);
+                        }
+                    } else { alert("Please select a PDF file for this action."); }
+                    break;
+                default: break;
+            }
+        } catch (error) {
+            console.error("Conversion failed:", error);
+            alert(`An error occurred: ${error.message}`);
+        }
     };
 
-    // ... (Your drag and drop handlers go here, same as previous response) ...
+    const handleDragEnter = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
+    const handleDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); };
+    const handleDragOver = (e) => { e.preventDefault(); e.stopPropagation(); };
+    const handleDrop = (e) => {
+        e.preventDefault(); e.stopPropagation();
+        setIsDragging(false);
+        if (e.dataTransfer.files?.length) {
+            onFiles(Array.from(e.dataTransfer.files));
+            e.dataTransfer.clearData();
+        }
+    };
 
     return (
         <div className="app-container">
